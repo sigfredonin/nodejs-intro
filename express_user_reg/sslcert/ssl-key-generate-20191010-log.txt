@@ -1,0 +1,35 @@
+Alice@WIN-5GRGFJCGF4I MINGW64 ~/JavaScriptLearn/nodejs-intro (master)
+$ openssl req -x509 -nodes -days 1830 -newkey rsa:4096 -keyout ./server.key -out ./server.crt
+Generating a 4096 bit RSA private key
+...................................++
+.........................................................................................................................................................................................................................................................................++
+writing new private key to './server.key'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:US
+State or Province Name (full name) [Some-State]:CA
+Locality Name (eg, city) []:Morgan Hill
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Sig Nin
+Organizational Unit Name (eg, section) []:WevDev
+Common Name (e.g. server FQDN or YOUR name) []:Sig's WebDev
+Email Address []:signin@email.com
+
+Alice@WIN-5GRGFJCGF4I MINGW64 ~/JavaScriptLearn/nodejs-intro (master)
+$ ls ser*
+server.crt  server.key
+
+Alice@WIN-5GRGFJCGF4I MINGW64 ~/JavaScriptLearn/nodejs-intro (master)
+$ mkdir express_user_reg/sslcert
+
+Alice@WIN-5GRGFJCGF4I MINGW64 ~/JavaScriptLearn/nodejs-intro (master)
+$ mv server* express_user_reg/sslcert/
+
+Alice@WIN-5GRGFJCGF4I MINGW64 ~/JavaScriptLearn/nodejs-intro (master)
+$ ls express_user_reg/sslcert/
+server.crt  server.key
