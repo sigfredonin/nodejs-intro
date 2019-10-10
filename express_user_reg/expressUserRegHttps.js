@@ -10,8 +10,8 @@
 var fs = require("fs");
 var http = require("http");
 var https = require("https");
-var privateKey = fs.readFileSync("sslcert/server.key");
-var certificate = fs.readFileSync("sslcert/server.cert");
+var privateKey = fs.readFileSync("./sslcert/server.key");
+var certificate = fs.readFileSync("./sslcert/server.crt");
 var credentials = { key: privateKey, cert: certificate };
 
 // Use Express app
