@@ -65,4 +65,7 @@ app.post('/process_post', urlencodedParser, function (req, res) {
 })
 
 // Run the server
-var httpsServer = https.createServer(credentials, app).listen(8443);
+var httpsServer = https.createServer(credentials, app);
+httpsServer.listen(8443, function() {
+  console.log("Express server listening on HTTPS port " + 8443);
+});
