@@ -36,12 +36,12 @@ app.use(express.static('public'));
 
 // For User Registration page using GET
 app.get('/user_reg_get', function (req, res) {
-  res.sendFile(__dirname + "/" + "user_reg_get.html");
+  res.sendFile(__dirname + "/http/" + "user_reg_get.html");
 })
 
 // For User Registration page using POST
 app.get('/user_reg_post', function (req, res) {
-  res.sendFile(__dirname + "/" + "user_reg_post.html");
+  res.sendFile(__dirname + "/http/" + "user_reg_post.html");
 })
 
 // Process a GET request
