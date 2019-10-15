@@ -64,8 +64,38 @@ app.get('/user_reg', (req, res) => {
 
 // Process a User Registration POST request
 app.post('/process_user_reg', urlencodedParser, (req, res) => {
-  respond_with_json_user_req(req, res, req.body, "POST");
+  const info = {
+    first_name: req.body.first_name,
+    last_name: req.body.last_name,
+    userid: req.body.userid
+  };
+  let sql = 'INSERT INTO users SET ?';
+  db.query(sql, info, (err, result) => {
+    if (err) {
+      console.log(`Error registering user: ${err}`);
+      throw err;
+    }
+    console.log(result);
+    respond_with_json_user_req(req, res, req.body, "User registered - POST");
+  });
 })
+
+// To get an existing user's info
+app.get('/user/:id', (req, res) => {
+  const userid = req.params.id;
+  console.log(`Getting info for user ${userid}`);
+  const sql = 'SELECT * FROM users WHERE id = ?';
+  db.query(sql, [userid], (err, rows, fields) => {
+    if (err) {
+      console.log(`Error requesting user info: ${err}`);
+      res.sendStatus(500);
+      res.end();
+      return;
+    }
+    console.log('Fetched info...');
+    res.json(rows);
+  });
+});
 
 // Run the server
 const httpsServer = https.createServer(credentials, app);
