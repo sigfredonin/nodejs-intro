@@ -35,6 +35,7 @@ db.connect((err) => {
 // Use Express app
 const express = require("express");
 const app = express();
+const app_https = express();
 
 // Use application/x-www-form-urlencoded parser to decode POST body
 const bodyParser = require("body-parser");
@@ -54,27 +55,45 @@ function respond_with_json_user_req(req, res, data, type) {
   res.end(type + " " + JSON.stringify(response));
 }
 
+/* ----------------------------------------------------------------------------
+  HTTP processing - static public pages and user management forms
+---------------------------------------------------------------------------- */
+
 // For static html files in public folder
 app.use(express.static('public'));
 
 // User Registration and Change Password
 app.get('/user_reg', (req, res) => {
   res.sendFile(__dirname + "/https/" + "user_reg.html");
-})
+});
 
 app.get('/user_pw', (req, res) => {
   res.sendFile(__dirname + "/https/" + "user_pw.html");
-})
+});
+
+/* ----------------------------------------------------------------------------
+  HTTPS processing - login and user DB update
+---------------------------------------------------------------------------- */
 
 // Processing user passwords requires SHA-256
 const crypto = require('crypto');
 
 // Process a User Registration POST request
-app.post('/process_user_reg', urlencodedParser, (req, res) => {
+app_https.post('/process_user_reg', urlencodedParser, (req, res) => {
+  const userid = req.body.userid;
+  console.log(`User Registration requested for user ${userid}`);
+  console.log(req.body);
   if (req.body.pw_1 != req.body.pw_2) {
     console.log(`Password mismatch - ${req.body.pw_1} != ${req.body.pw_2}`);
     res.status(400);
     res.end('Passwords do not match.');
+    return;
+  }
+  // check that the new password is not null
+  if (req.body.pw_1 == '') {
+    console.log('Empty password.');
+    res.status(400);
+    res.end(`New password invalid - empty password not allowed.`);
     return;
   }
   const pwhash = crypto.createHash('sha256').update(req.body.pw_1).digest('base64');
@@ -95,17 +114,25 @@ app.post('/process_user_reg', urlencodedParser, (req, res) => {
     console.log(result);
     respond_with_json_user_req(req, res, req.body, "User registered - POST");
   });
-})
+});
 
 // Process a User Password Update POST request
-app.post('/process_user_pw', urlencodedParser, (req, res) => {
+app_https.post('/process_user_pw', urlencodedParser, (req, res) => {
   const userid = req.body.userid;
-  console.log(`Password update requested for user ${userid}`);
+  console.log(`Password Update requested for user ${userid}`);
+  console.log(req.body);
   // check that both versions of the new password are the same
   if (req.body.new_1 != req.body.new_2) {
     console.log('Password mismatch.');
     res.status(400);
     res.end(`New passwords do not match - ${req.body.new_1} != ${req.body.new_2}.`);
+    return;
+  }
+  // check that the new password is not null
+  if (req.body.new_1 == '') {
+    console.log('Empty password.');
+    res.status(400);
+    res.end(`New password invalid - empty password not allowed.`);
     return;
   }
   // fetch the current password from the DB
@@ -119,9 +146,9 @@ app.post('/process_user_pw', urlencodedParser, (req, res) => {
       res.end(`Server error, could not fetch info for userid: ${userid}`);
       return;
     }
-    console.log('Fetched info...');
+    console.log(`Fetched info for user ${userid}`);
     console.log(rows);
-    if (rows[0].userid == null) {
+    if (rows[0] == null) {
       console.log(`Could not find user ${userid}`);
       res.status(400);
       res.end(`Could not find userid: ${userid}`);
@@ -158,12 +185,12 @@ app.post('/process_user_pw', urlencodedParser, (req, res) => {
       res.end(`Password updated for userid ${userid}`);
     });
   });
-})
+});
 
 // To get an existing user's info
-app.get('/user/:id', (req, res) => {
+app_https.get('/user/:id', (req, res) => {
   const userid = req.params.id;
-  console.log(`Getting info for user ${userid}`);
+  console.log(`Getting info for user with id = ${userid}`);
   const sql = 'SELECT * FROM users WHERE id = ?';
   db.query(sql, [userid], (err, rows, fields) => {
     if (err) {
@@ -173,12 +200,17 @@ app.get('/user/:id', (req, res) => {
       return;
     }
     console.log('Fetched info...');
+    res.status(200);
     res.json(rows);
   });
 });
 
-// Run the server
-const httpsServer = https.createServer(credentials, app);
+// Run the servers
+const httpServer = http.createServer(credentials, app);
+httpServer.listen(8081, function() {
+  console.log("Play App server listening on HTTP port " + 8081);
+});
+const httpsServer = https.createServer(credentials, app_https);
 httpsServer.listen(8443, function() {
   console.log("Play App server listening on HTTPS port " + 8443);
 });
