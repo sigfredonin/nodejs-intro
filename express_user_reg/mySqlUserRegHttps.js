@@ -8,6 +8,8 @@
     October 9, 2019
 */
 
+var debug = true;
+
 // Use HTTPS - get credentials
 const fs = require("fs");
 const http = require("http");
@@ -45,11 +47,13 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 function respond_with_json_user_req(req, res, data, type) {
   // Prepare output in JSON format
   let response = {
-    first_name: data.first_name,
-    last_name:  data.last_name,
-    userid:     data.userid,
-    pw_1:       data.pw_1,
-    pw_2:       data.pw_2
+    first_name : data.first_name,
+    last_name  : data.last_name,
+    userid     : data.userid
+  }
+  if (debug == true) {
+    response.pw_1 = data.pw_1;
+    response.pw_2 = data.pw_2;
   }
   console.log(response);
   res.end(type + " " + JSON.stringify(response));
@@ -82,7 +86,9 @@ const crypto = require('crypto');
 app_https.post('/process_user_reg', urlencodedParser, (req, res) => {
   const userid = req.body.userid;
   console.log(`User Registration requested for user ${userid}`);
-  console.log(req.body);
+  if (debug == true) {
+    console.log(req.body);
+  }
   if (req.body.pw_1 != req.body.pw_2) {
     console.log(`Password mismatch - ${req.body.pw_1} != ${req.body.pw_2}`);
     res.status(400);
@@ -120,7 +126,9 @@ app_https.post('/process_user_reg', urlencodedParser, (req, res) => {
 app_https.post('/process_user_pw', urlencodedParser, (req, res) => {
   const userid = req.body.userid;
   console.log(`Password Update requested for user ${userid}`);
-  console.log(req.body);
+  if (debug == true) {
+    console.log(req.body);
+  }
   // check that both versions of the new password are the same
   if (req.body.new_1 != req.body.new_2) {
     console.log('Password mismatch.');
