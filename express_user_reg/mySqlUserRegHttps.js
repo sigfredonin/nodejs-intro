@@ -42,6 +42,13 @@ const app_https = express();
 // Use application/x-www-form-urlencoded parser to decode POST body
 const bodyParser = require("body-parser");
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
+app.use(urlencodedParser);
+app_https.use(urlencodedParser);
+
+// Use Morgan request logging
+const morgan = require('morgan');
+app.use(morgan('combined'));
+app_https.use(morgan('combined'));
 
 // Echo user registration data as json string
 function respond_with_json_user_req(req, res, data, type) {
@@ -83,7 +90,7 @@ app.get('/user_pw', (req, res) => {
 const crypto = require('crypto');
 
 // Process a User Registration POST request
-app_https.post('/process_user_reg', urlencodedParser, (req, res) => {
+app_https.post('/process_user_reg', (req, res) => {
   const userid = req.body.userid;
   console.log(`User Registration requested for user ${userid}`);
   if (debug == true) {
@@ -123,7 +130,7 @@ app_https.post('/process_user_reg', urlencodedParser, (req, res) => {
 });
 
 // Process a User Password Update POST request
-app_https.post('/process_user_pw', urlencodedParser, (req, res) => {
+app_https.post('/process_user_pw', (req, res) => {
   const userid = req.body.userid;
   console.log(`Password Update requested for user ${userid}`);
   if (debug == true) {
