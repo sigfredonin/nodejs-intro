@@ -37,7 +37,6 @@ const app_https = express();
 // Use application/x-www-form-urlencoded parser to decode POST body
 const bodyParser = require("body-parser");
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
-app.use(urlencodedParser);
 app_https.use(urlencodedParser);
 
 // Use Morgan request logging
