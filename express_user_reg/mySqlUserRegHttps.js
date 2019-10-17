@@ -20,19 +20,14 @@ const credentials = { key: privateKey, cert: certificate };
 
 // Create DB connection
 const mysql = require('mysql');
-const db = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'tester',
-  password : 'probador!Oct14!',
-  database : 'playapp'
-});
-
-db.connect((err) => {
-  if (err) {
-    throw err;
-  }
-  console.log("Connected to DB playapp");
-});
+function getConnection() {
+  return mysql.createConnection({
+    host     : 'localhost',
+    user     : 'tester',
+    password : 'probador!Oct14!',
+    database : 'playapp'
+  });
+}
 
 // Use Express app
 const express = require("express");
@@ -117,7 +112,7 @@ app_https.post('/process_user_reg', (req, res) => {
     pwhash: pwhash
   };
   let sql = 'INSERT INTO users SET ?';
-  db.query(sql, info, (err, result) => {
+  getConnection().query(sql, info, (err, result) => {
     if (err) {
       console.log(`Error registering user: ${err}`);
       res.status(500);
@@ -154,7 +149,7 @@ app_https.post('/process_user_pw', (req, res) => {
   console.log(`Getting info for user ${userid}`);
   const sql_get = 'SELECT * FROM users WHERE userid = ?';
   let pwhash = null;
-  db.query(sql_get, [userid], (err, rows, fields) => {
+  getConnection().query(sql_get, [userid], (err, rows, fields) => {
     if (err) {
       console.log(`Error requesting user info: ${err}`);
       res.status(500);
@@ -188,7 +183,7 @@ app_https.post('/process_user_pw', (req, res) => {
     // update the password in the DB
     pwhash = crypto.createHash('sha256').update(req.body.new_1).digest('base64');
     let sql_update = `UPDATE users SET pwhash = '${pwhash}' WHERE userid = '${userid}'`;
-    db.query(sql_update, (err, result) => {
+    getConnection().query(sql_update, (err, result) => {
       if (err) {
         console.log(`Error updating password for userid ${userid}: ${err}`);
         res.status(500);
@@ -207,7 +202,7 @@ app_https.get('/user/:id', (req, res) => {
   const userid = req.params.id;
   console.log(`Getting info for user with id = ${userid}`);
   const sql = 'SELECT * FROM users WHERE id = ?';
-  db.query(sql, [userid], (err, rows, fields) => {
+  getConnection().query(sql, [userid], (err, rows, fields) => {
     if (err) {
       console.log(`Error requesting user info: ${err}`);
       res.status(500);
